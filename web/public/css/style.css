@@ -173,7 +173,7 @@ input#firstname,input#lastname,input#city,input#state,input#zip,input#email,inpu
 	padding:0 15px;
 	width:297px;
 }
-input#address,input#address2,input#TEXT {
+input#address,input#address2,input#TEXT,input#heightH,input#weightH,input#widthH,input#LengthH,input#address {
 	border: 1px solid #fff;
     color: #fff;
     text-align: justify;
