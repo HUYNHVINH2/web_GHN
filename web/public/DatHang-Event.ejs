@@ -1,0 +1,109 @@
+<script>
+    $(document).ready(function () {
+        var send = false;
+        var token = "TokenStaging", isLoaded = false, IdProvice, toWardcode, Note, ReturnAddress, ReturnContactName, ReturnContactPhone,
+            width, height, weight, Length, ServiceID, NoteCode, Note;
+        $.ajax({
+            type: 'POST',
+            url: "/get-list-District",
+            data: { token },
+            dataType: "json",
+            success: function (data) {
+                $("#DistrictSelect").append(`
+                        <option id="DistricOption" value="">(chọn quận)</option>`)
+                data.data.forEach(item => {
+                    $("#DistrictSelect").append(`
+                        <option id="DistricOption" value=${item.DistrictID}>${item.DistrictName}</option>`
+                    )
+                });
+            }, error: function (err) {
+                console.log("sai");
+            }
+        }).done(function () {
+            isLoaded = true;
+            console.log(isLoaded);
+        })
+        $('#DistrictSelect').change(function (e) {
+            console.log(isLoaded)
+            $("#WardSelect").empty();
+            if (isLoaded) {
+                IdProvice = $(this).val();
+                console.log(IdProvice)
+                $.ajax({
+                    type: 'POST',
+                    url: "/get-list-ward",
+                    data: { token, IdProvice },
+                    dataType: "json",
+                    success: function (data) {
+                        $("#WardSelect").append(`
+                        <option id="WardOption" value="">(chọn huyện phường)</option>`)
+                        data.data.forEach(item => {
+                            $("#WardSelect").append(`
+                        <option id="WardOption" value=${item.WardCode}>${item.WardName}</option>`
+                            )
+                        })
+                    }, error: function (err) {
+                        console.log("sai");
+                    }
+                });
+                $("#WardSelect").change(function () {
+                    toWardcode = $(this).val();
+                    console.log(toWardcode);
+                })
+                $("#send").click(function () {
+                    send = false
+                    width = $("#widthH").val();
+                    height = $("#heightH").val();
+                    weight = $("#weightH").val();
+                    Length = $("#LengthH").val();
+                    ReturnContactName = $("#firstname").val();
+                    ReturnContactPhone = $("#numberphone").val();
+                    ReturnAddress = $("#address").val();
+                    $.ajax({
+                        type: 'POST',
+                        url: "/get-ServerID",
+                        data: { weight, Length, width, height, IdProvice },
+                        dataType: "json",
+                        success: function (data) {
+                            ServiceID = data.data[0];
+                            console.log(ServiceID);
+                            if (typeof ServiceID != 'undefined') {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: "/create-oder-GHN",
+                                    data: {
+                                        IdProvice, toWardcode, ServiceID,
+                                        weight, Length, width, height, ReturnAddress, ReturnContactName, ReturnContactPhone
+                                    },
+                                    dataType: "json",
+                                    success: function (data) {
+                                        console.log("gui thanh cong")
+                                    }, error: function (err) {
+                                        console.log("sai");
+                                    }
+                                })
+                            }
+                            alert(data.data[0] + "Thông tin về cước phí giao hàng phí giao hàng" + data.data[1] + "Thời gian ước tính" + data.data[2] + "Tên dịch vụ giao hàng:" + data.data[3]);
+                        }, error: function (err) {
+                            console.log("sai");
+                        }
+                    })
+                    // let ServerId = 53319;
+                    // let ToDistric = 1, toWard = 2;
+                })
+            }
+        }
+        )
+
+
+
+        // if (isLoaded) {
+        //     $('body').on('change', '#DistrictSelect', function (e) {
+        //         let val = $(this);
+        //         let val2 = $('#DistrictSelect option:selected').val();
+        //         console.log({val2});
+        //     })
+
+        // }
+    });
+</script>

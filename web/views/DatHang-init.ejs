@@ -35,7 +35,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                 <h1>Người Nhận</h1>
                 <div class="form-control">
                     <label class="header">Số điện thoại <span>:</span></label>
-                    <input type="text" id="numberphone" name="" placeholder="Số điện thoại"
+                    <input type="number" id="numberphone" name="" placeholder="Số điện thoại"
                         title="Please enter your number Phone" required="">
                 </div>
 
@@ -78,25 +78,28 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 
             <div class="form-control2">
                 <label class="header">Khối lượng <span>:</span></label>
-                <input type="text" id="weightH" name="" placeholder="Your Address" title="Please enter Your Address"
+                <input type="number" id="weightH" name="" placeholder="gam" title="Please enter Your Address"
                     required="">
             </div>
+
             <div class="form-control2">
                 <label class="header">Kích thước <span>:</span></label>
-                <input type="text" id="TEXT" name="" placeholder="Your Address" title="Please enter Your Address"
+                <input type="text" id="TEXT" name="" placeholder="Kích thước " title="Please enter Your Address"
                     required="">
             </div>
             <div class="form-control">
                 <label class="header">KL Quy đổi<span>:</span></label>
-                <input type="tel" id="LengthH" name="usrtel1" placeholder="+??" title="Please enter Your Phone Number"
-                    maxlength="4" required="">
+                <br>
                 <label class="header">Dài <span>:</span></label>
-                <input type="tel" id="widthH" name="usrtel1" placeholder="+??" title="Please enter Your Phone Number"
-                    maxlength="4" required="">
-                <label class="header">Rộng <span>:</span></label>
-                <input type="tel" id="heightH" id="height" name="usrtel1" placeholder="+??"
+                <input type="number" id="LengthH" name="usrtel1" placeholder="?cm"
                     title="Please enter Your Phone Number" maxlength="4" required="">
+                <label class="header">Rộng <span>:</span></label>
+                <input type="number" id="widthH" name="usrtel1" placeholder="?cm" title="Please enter Your Phone Number"
+                    maxlength="4" required="">
                 <label class="header">Cao <span>:</span></label>
+                <input type="number" id="heightH" id="height" name="usrtel1" placeholder="?cm"
+                    title="Please enter Your Phone Number" maxlength="4" required="">
+
 
             </div>
 
@@ -136,11 +139,11 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 </body>
 
 <script>
-
     $(document).ready(function () {
-        var send = false;
+        //SET UP VALUE
         var token = "TokenStaging", isLoaded = false, IdProvice, toWardcode, Note, ReturnAddress, ReturnContactName, ReturnContactPhone,
-        width, height, weight, Length, ServerId, NoteCode, Note;
+            width, height, weight, Length, ServiceID, NoteCode, Note, ServerId;
+        //FIRST  : call API Province (it important)
         $.ajax({
             type: 'POST',
             url: "/get-list-District",
@@ -148,11 +151,11 @@ License URL: http://creativecommons.org/licenses/by/3.0/
             dataType: "json",
             success: function (data) {
                 $("#DistrictSelect").append(`
-                        <option id="DistricOption" value="">(chọn quận)</option>`)
+                        <option id="DistricOption" value="">(chọn quận)</option>`);
                 data.data.forEach(item => {
                     $("#DistrictSelect").append(`
                         <option id="DistricOption" value=${item.DistrictID}>${item.DistrictName}</option>`
-                    )
+                    );
                 });
             }, error: function (err) {
                 console.log("sai");
@@ -161,16 +164,13 @@ License URL: http://creativecommons.org/licenses/by/3.0/
             isLoaded = true;
             console.log(isLoaded);
         })
-
         $('#DistrictSelect').change(function (e) {
+            //Call API Province success, we must call API WWards(it important)
             console.log(isLoaded)
-
             $("#WardSelect").empty();
             if (isLoaded) {
-
                 IdProvice = $(this).val();
-
-                console.log(IdProvice)
+                console.log(IdProvice);
                 $.ajax({
                     type: 'POST',
                     url: "/get-list-ward",
@@ -184,7 +184,6 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                         <option id="WardOption" value=${item.WardCode}>${item.WardName}</option>`
                             )
                         })
-
                     }, error: function (err) {
                         console.log("sai");
                     }
@@ -193,10 +192,10 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                     toWardcode = $(this).val();
                     console.log(toWardcode);
                 })
-
+                // CALL ALL API WE CAN CLICK SEND BUTTON
+                var send = false;
                 $("#send").click(function () {
-
-                    send = false
+                    send = true;
                     width = $("#widthH").val();
                     height = $("#heightH").val();
                     weight = $("#weightH").val();
@@ -204,64 +203,41 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                     ReturnContactName = $("#firstname").val();
                     ReturnContactPhone = $("#numberphone").val();
                     ReturnAddress = $("#address").val();
+                 
                     $.ajax({
                         type: 'POST',
                         url: "/get-ServerID",
                         data: { weight, Length, width, height, IdProvice },
                         dataType: "json",
-                        success: function (data) {                           
-                            ServerId = data.data[0];
-                            console.log(ServerId);
-                            if(typeof ServerId !='undefined')
-                            {
+                        success: function (data) {
+                            ServiceID = data.data[0];
+                            console.log(ServiceID);
+                            if (typeof ServiceID != 'undefined' && send == true) {
                                 $.ajax({
-                            type: 'POST',
-                            url: "/create-oder-GHN",
-                            data: {
-                                IdProvice, toWardcode, ServerId,
-                                weight, Length, width, height, ReturnAddress, ReturnContactName, ReturnContactPhone
-                            },
-                            dataType: "json",
-                            success: function (data) {
-                               console.log("gui thanh cong")
-                            }, error: function (err) {
-                                console.log("sai");
+                                    type: 'POST',
+                                    url: "/create-oder-GHN",
+                                    data: {
+                                        IdProvice, toWardcode, ServiceID,
+                                        weight, Length, width, height, ReturnAddress, ReturnContactName, ReturnContactPhone
+                                    },
+                                    dataType: "json",
+                                    success: function (data) {
+                                        console.log("gui thanh cong");
+                                        send = false;
+                                    }, error: function (err) {
+                                        console.log("sai");
+                                    }
+                                })
                             }
-                        })
-                            }
-                            alert(data.data[0]+"Thông tin về cước phí giao hàng phí giao hàng" + data.data[1] + "Thời gian ước tính" + data.data[2] + "Tên dịch vụ giao hàng:" + data.data[3]);
+                            alert(data.data[0] + "Thông tin về cước phí giao hàng phí giao hàng" + data.data[1] + "Thời gian ước tính" + data.data[2] + "Tên dịch vụ giao hàng:" + data.data[3]);
                         }, error: function (err) {
-                            console.log("sai");
+                            console.log("sai" +err);
                         }
                     })
-                   
-                    // let ServerId = 53319;
-                    // let ToDistric = 1, toWard = 2;
-                    if (send == true) {
-                        console.log(send +""+ ServerId)
-                       
-                    }
-
                 })
-
-
             }
-        }
-        )
-
-
-
-        // if (isLoaded) {
-        //     $('body').on('change', '#DistrictSelect', function (e) {
-        //         let val = $(this);
-        //         let val2 = $('#DistrictSelect option:selected').val();
-        //         console.log({val2});
-        //     })
-
-        // }
+        })
     });
-
-
 </script>
 
 </html>

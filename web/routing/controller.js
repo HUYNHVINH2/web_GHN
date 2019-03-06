@@ -14,14 +14,12 @@ app.use(bodyParser.raw());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
-
+//
 app.get('/', function (req, res) {
     res.render('DatHang-init');
 })
 app.post('/get-list-ward', (req, res) => {
     var { token, IdProvice } = req.body;
-
     var options = {
         method: 'POST',
         uri: 'https://apiv3-test.ghn.vn/api/v1/apiv3/GetWards',
@@ -29,7 +27,7 @@ app.post('/get-list-ward', (req, res) => {
             token: token,
             DistrictID: Number(IdProvice)
         },
-        json: true // Automatically stringifies the body to JSON
+        json: true
     };
     rp(options)
         .then(function (DATA) {
@@ -37,10 +35,9 @@ app.post('/get-list-ward', (req, res) => {
             res.json({ data: DATA.data.Wards });
         })
         .catch(function (err) {
-            console.log("loi roi!")
+            console.log("loi roi!");
         });
 });
-
 app.post('/get-list-District', (req, res) => {
     var token = "TokenStaging";
     var options = {
@@ -48,29 +45,25 @@ app.post('/get-list-District', (req, res) => {
         uri: 'https://apiv3-test.ghn.vn/api/v1/apiv3/GetDistricts',
         body: {
             token: token,
-
         },
-        json: true // Automatically stringifies the body to JSON
+        json: true
     };
     rp(options)
         .then(function (DATA) {
             var lsDistric = [];
             DATA.data.forEach(item => {
                 if (item.ProvinceID == 202) {
-                    lsDistric.push(item)
+                    lsDistric.push(item);
                 }
-
             });
-
             res.json({ data: lsDistric });
         })
         .catch(function (err) {
-            console.log("loi roi!" + err)
+            console.log("loi roi!" + err);
         });
 });
-
 app.post('/get-ServerID', (req, res) => {
-    var token = "TokenStaging"
+    var token = "TokenStaging";
     var { weight, Length, width, height, IdProvice } = req.body;
     var options = {
         method: 'POST',
@@ -84,7 +77,7 @@ app.post('/get-ServerID', (req, res) => {
             FromDistrictID: 1451,
             ToDistrictID: Number(IdProvice)
         },
-        json: true // Automatically stringifies the body to JSON
+        json: true
     };
     rp(options)
         .then(function (DATA) {
@@ -94,44 +87,39 @@ app.post('/get-ServerID', (req, res) => {
             res.json({ data: DataServer });
         })
         .catch(function (err) {
-            console.log("loi roi!" + err)
+            console.log("loi roi!" + err);
         });
-
 })
 app.post('/create-oder-GHN', (req, res) => {
-
     var {
-        IdProvice, toWardcode, ServerId,
+        IdProvice, toWardcode, ServiceID,
         weight, Length, width, height, ReturnAddress, ReturnContactName, ReturnContactPhone
     } = req.body;
-    console.log(" " + IdProvice + " " + toWardcode + " " + ServerId + " "
-        + weight + "" + Length + "" + width + "" + height + ReturnAddress + ReturnContactName + ReturnContactPhone);
-
-
+    console.log(ServiceID);
     var options = {
         method: 'POST',
         uri: 'https://apiv3-test.ghn.vn/api/v1/apiv3/CreateOrder',
         body: {
             token: "TokenStaging",
-            PaymentTypeIDoptional:1,
-            FromDistrictID:1451,
-            FromWardCode:"20911",
-            ToDistrictID:Number(IdProvice),
-            ToWardCode:toWardcode,
+            PaymentTypeIDoptional: 1,
+            FromDistrictID: 1451,
+            FromWardCode: "20911",
+            ToDistrictID: Number(IdProvice),
+            ToWardCode: toWardcode,
             Note: "Tạo ĐH qua API",
             SealCode: "tem niêm phong",
             ExternalCode: "",
             ClientContactName: "KOF",
             ClientContactPhone: "19001206",
-            ClientAddress: "102 Man Thiện", 
+            ClientAddress: "102 Man Thiện",
             CustomerName: ReturnContactName,
             CustomerPhone: ReturnContactPhone,
             ShippingAddress: ReturnAddress,
-            CoDAmount: 1500000,
-            NoteCode: "CHOXEMHANGKHONGTHU", 
+            CoDAmount: 0,
+            NoteCode: "CHOXEMHANGKHONGTHU",
             InsuranceFee: 0,
             ClientHubID: 299650,
-            ServiceID: Number(ServerId), 
+            ServiceID: Number(ServiceID),
             Content: "Test nội dung",
             CouponCode: "",
             Weight: Number(weight),
@@ -139,11 +127,11 @@ app.post('/create-oder-GHN', (req, res) => {
             Length: Number(Length),
             Width: Number(width),
             ShippingOrderCosts:
-            [
-                {
-                    "ServiceID": 53337
-                }
-            ],
+                [
+                    {
+                        "ServiceID": 53337
+                    }
+                ],
             ReturnContactName: "KOF",
             ReturnContactPhone: "19001206",
             ReturnAddress: "102 Man Thiện",
@@ -152,21 +140,18 @@ app.post('/create-oder-GHN', (req, res) => {
             IsCreditCreate: true,
             AffiliateID: 252905
         },
-        json: true // Automatically stringifies the body to JSON
+        json: true 
     };
     rp(options)
         .then(function (DATA) {
-           var DataServer = " Dung roi"
-            console.log("dung"+DATA)
+            var DataServer = " Dung roi";
+            console.log("dung" + DATA.data.OrderCode);
             res.json({ data: DataServer });
         })
         .catch(function (err) {
-            console.log("loi roi!" + err)
+            console.log("loi roi!" + err);
         });
-
-
 })
-
 app.listen(port, function () {
     console.log("Running  on port " + port);
 });
